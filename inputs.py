@@ -58,7 +58,7 @@ def read_and_process_image(filename, label):
     :param label: model label
     :return: a 'View' and label
     """
-    image_lists = np.loadtxt(filename.decode(), dtype=str, skiprows=2)
+    image_lists = np.loadtxt(filename, dtype=str, skiprows=2)
     print(filename)
     # print("fileanme", filename.numpy())
     # image_lists = np.loadtxt(filename.numpy(), dtype=str, skiprows=2)
@@ -75,8 +75,8 @@ def read_and_process_image(filename, label):
     # read images
     images = [cv2.imread(image_name,).astype(np.float32) for image_name in image_lists]
     # print("images", images)
-    # print("imgaes", images)
-    # resize image to shape IMAGE_SHAPE
+    #     # print("imgaes", images)
+    #     # resize image to shape IMAGE_SHAPE
     resized_images = [cv2.resize(image, _g.IMAGE_SHAPE[0:2]) for image in images]
     # scale image from [0, 255] to [-0.5, 0.5]
 

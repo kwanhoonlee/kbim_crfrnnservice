@@ -1,13 +1,18 @@
+# coding=utf-8
+# 兼容python3
 from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import os, zipfile
 import globals as _g
 import inputs
-from src import model as m
+import sys
+sys.path.insert(1, './src')
+import model
+import numpy as np
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './files'
-
+MODEL_FOLDER = './saved_model'
 ALLOWED_EXTENSIONS = set(['zip'])
 
 def allowed_file(filename):
@@ -38,6 +43,16 @@ def index():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             unzip_file(filename)
 
+            view_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename.rstrip('.zip'), "1.txt")
+
+            view, _ = inputs.read_and_process_image(view_filename, 0)
+            view = view[np.newaxis, :]
+
+            # print(view)
+            crf_model = model.interference_multi_view()
+            crf_model.load_weights(os.path.join(app.config['MODEL_FOLDER'], 'latest.weights.h5'))
+            crf_model.predict(view,)
+            # print(os.path.join(app.config['UPLOAD_FOLDER'], filename.rstrip('.zip'), "1.txt"))
             return "done"
 
     return '''
@@ -52,4 +67,5 @@ def index():
 
 if __name__ == '__main__':
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['MODEL_FOLDER'] = MODEL_FOLDER
     app.run(host='0.0.0.0', port=3000)
