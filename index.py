@@ -15,6 +15,9 @@ UPLOAD_FOLDER = './files'
 MODEL_FOLDER = './saved_model'
 ALLOWED_EXTENSIONS = set(['zip'])
 
+import os
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
@@ -44,16 +47,15 @@ def index():
             unzip_file(filename)
 
             view_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename.rstrip('.zip'), "1.txt")
-
             view, _ = inputs.read_and_process_image(view_filename, 0)
             view = view[np.newaxis, :]
 
             # print(view)
-            crf_model = model.interference_multi_view()
-            crf_model.load_weights(os.path.join(app.config['MODEL_FOLDER'], 'latest.weights.h5'))
-            crf_model.predict(view,)
+            crf_model = model.inference_multi_view_with_crfrnn()
+            crf_model.load_weights(os.path.join(app.config['MODEL_FOLDER'], 'crf_8classes_91.h5'))
+            crf_model.predict(view, 0)
             # print(os.path.join(app.config['UPLOAD_FOLDER'], filename.rstrip('.zip'), "1.txt"))
-            return "done"
+            return crf_model.predict(view, 0)
 
     return '''
     <!doctype html>
